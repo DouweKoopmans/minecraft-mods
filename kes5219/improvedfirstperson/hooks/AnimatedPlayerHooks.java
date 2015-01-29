@@ -1,25 +1,67 @@
-/*  1:   */ package kes5219.improvedfirstperson.hooks;
-/*  2:   */ 
-/*  3:   */ import kes5219.improvedfirstperson.client.IFPClientProxy;
-/*  4:   */ import kes5219.improvedfirstperson.common.ModImprovedFirstPerson;
-/*  5:   */ import net.minecraft.client.Minecraft;
-/*  6:   */ import net.minecraft.client.renderer.entity.RenderManager;
-/*  7:   */ import net.minecraft.client.settings.GameSettings;
-/*  8:   */ import net.minecraft.entity.player.EntityPlayer;
-/*  9:   */ import thehippomaster.AnimatedPlayer.client.ModelPlayer;
-/* 10:   */ 
-/* 11:   */ public class AnimatedPlayerHooks
-/* 12:   */ {
-/* 13:   */   public static void beforeAnimatedPlayerRender(EntityPlayer player, ModelPlayer model)
-/* 14:   */   {
-/* 15:14 */     Minecraft mc = IFPClientProxy.getMC();
-/* 16:   */     
-/* 17:16 */     model.head.field_78807_k = ((ModImprovedFirstPerson.enableBodyRender) && (mc.field_71474_y.field_74320_O == 0) && (player == mc.field_71451_h) && (RenderManager.field_78727_a.field_78735_i != 180.0F));
-/* 18:   */   }
-/* 19:   */ }
+/*
+package kes5219.improvedfirstperson.hooks;
 
-
-/* Location:           C:\Users\Benoît\Desktop\ImprovedFirstPerson1.6.4r1.jar
- * Qualified Name:     kes5219.improvedfirstperson.hooks.AnimatedPlayerHooks
- * JD-Core Version:    0.7.0.1
- */
+import thehippomaster.AnimatedPlayer.PlayerData;
+import thehippomaster.AnimatedPlayer.client.ModelPlayer;
+import kes5219.improvedfirstperson.client.IFPClientProxy;
+import kes5219.improvedfirstperson.common.ModImprovedFirstPerson;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.ModelRenderer;
+import net.minecraft.client.renderer.entity.Render;
+import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.MathHelper;
+
+public class AnimatedPlayerHooks {
+    
+    public static void beforeAnimatedPlayerRender(EntityPlayer player, ModelPlayer model)
+    {
+        Minecraft mc = IFPClientProxy.getMC();
+        
+        model.head.isHidden = ModImprovedFirstPerson.enableBodyRender &&
+                mc.gameSettings.thirdPersonView == 0 &&
+                player == mc.renderViewEntity &&
+                RenderManager.instance.playerViewY != 180;
+    }
+    
+    public static int getJumpTickIncrementDown(PlayerData data)
+    {
+        if (data.jumpTick > 4)
+        {
+            return 4;
+        }
+        else
+        {
+            switch (data.jumpTick)
+            {
+            case 4:
+                return 2;
+            case 2:
+                return 1;
+            case 1:
+                return 0;
+            }
+        }
+        
+        return MathHelper.clamp_int(data.jumpTick - 1, 0, 4);
+    }
+    
+    public static void doAnimatedPlayerTransforms(EntityPlayer player, Render render, float limbSwing, float limbSwingAmount, float existedPartial, float headOffset, float pitch, float partialTick)
+    {
+        thehippomaster.AnimatedPlayer.client.RenderPlayer apRender = (thehippomaster.AnimatedPlayer.client.RenderPlayer)render;
+        ModelPlayer model = apRender.playerModel;
+        PlayerData data = PlayerData.getPlayerData(player);
+        
+        model.partialTick = partialTick;
+        model.setAngles(data);
+        model.animate(player, data, limbSwing, limbSwingAmount, existedPartial, headOffset, pitch, 0.0625F);
+        
+        AfterCameraTransformation.doModelRenderTransforms(model.pelvis, true);
+        AfterCameraTransformation.doModelRenderTransforms(model.chest, true);
+        AfterCameraTransformation.doModelRenderTransforms(model.head, false);
+        AfterCameraTransformation.undoRotation(model.chest);
+        AfterCameraTransformation.undoRotation(model.pelvis);
+    }
+    
+}
+*/

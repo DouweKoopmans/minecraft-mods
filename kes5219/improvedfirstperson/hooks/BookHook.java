@@ -1,21 +1,31 @@
-/*  1:   */ package kes5219.improvedfirstperson.hooks;
-/*  2:   */ 
-/*  3:   */ import abw;
-/*  4:   */ import nn;
-/*  5:   */ import ye;
-/*  6:   */ 
-/*  7:   */ public class BookHook
-/*  8:   */ {
-/*  9:   */   public static boolean cancelOpeningGUI()
-/* 10:   */   {
-/* 11:25 */     return false;
-/* 12:   */   }
-/* 13:   */   
-/* 14:   */   public void onUpdate(ye stack, abw world, nn entity, int par4, boolean par5) {}
-/* 15:   */ }
+package kes5219.improvedfirstperson.hooks;
 
-
-/* Location:           C:\Users\Benoît\Desktop\ImprovedFirstPerson1.6.4r1.jar
- * Qualified Name:     kes5219.improvedfirstperson.hooks.BookHook
- * JD-Core Version:    0.7.0.1
- */
+import kes5219.improvedfirstperson.client.IFPClientProxy;
+import kes5219.improvedfirstperson.common.ModImprovedFirstPerson;
+
+import org.lwjgl.opengl.GL11;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.settings.GameSettings;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
+
+public class BookHook {
+	
+	//Class transformer is used to inject the following code at the beginning of the method
+	//onItemRightClick(ItemStack stack, World world, EntityPlayer player) in ItemEditable and ItemWritable :
+	//if(BookHook.cancelOpeningGUI()) return;
+	//By returning true, it will cause written books not to open their GUI.
+    public static boolean cancelOpeningGUI()
+	{
+    	//System.out.println("skip");
+    	return false;
+	}
+    
+    public void onUpdate(ItemStack stack, World world, Entity entity, int par4, boolean par5)
+    {
+    }
+    
+}

@@ -1,46 +1,53 @@
-/*  1:   */ package kes5219.improvedfirstperson.client;
-/*  2:   */ 
-/*  3:   */ import ats;
-/*  4:   */ import atv;
-/*  5:   */ import cpw.mods.fml.client.registry.KeyBindingRegistry.KeyHandler;
-/*  6:   */ import cpw.mods.fml.common.TickType;
-/*  7:   */ import java.util.EnumSet;
-/*  8:   */ import kes5219.improvedfirstperson.common.ModImprovedFirstPerson;
-/*  9:   */ 
-/* 10:   */ public class IFPKeyHandler
-/* 11:   */   extends KeyBindingRegistry.KeyHandler
-/* 12:   */ {
-/* 13:19 */   static ats toggle = new ats("Toggle IFP View", 64);
-/* 14:   */   
-/* 15:   */   public IFPKeyHandler()
-/* 16:   */   {
-/* 17:23 */     super(new ats[] { toggle }, new boolean[] { false });
-/* 18:   */   }
-/* 19:   */   
-/* 20:   */   public String getLabel()
-/* 21:   */   {
-/* 22:29 */     return "ModImprovedFirstPersonBindings";
-/* 23:   */   }
-/* 24:   */   
-/* 25:   */   public void keyDown(EnumSet<TickType> types, ats kb, boolean tickEnd, boolean isRepeat)
-/* 26:   */   {
-/* 27:36 */     if ((tickEnd) && (IFPClientProxy.getMC().n == null)) {
-/* 28:38 */       if (kb.d == toggle.d) {
-/* 29:40 */         ModImprovedFirstPerson.enableBodyRender = !ModImprovedFirstPerson.enableBodyRender;
-/* 30:   */       }
-/* 31:   */     }
-/* 32:   */   }
-/* 33:   */   
-/* 34:   */   public void keyUp(EnumSet<TickType> types, ats kb, boolean tickEnd) {}
-/* 35:   */   
-/* 36:   */   public EnumSet<TickType> ticks()
-/* 37:   */   {
-/* 38:50 */     return EnumSet.of(TickType.CLIENT);
-/* 39:   */   }
-/* 40:   */ }
+package kes5219.improvedfirstperson.client;
 
-
-/* Location:           C:\Users\Benoît\Desktop\ImprovedFirstPerson1.6.4r1.jar
- * Qualified Name:     kes5219.improvedfirstperson.client.IFPKeyHandler
- * JD-Core Version:    0.7.0.1
- */
+import java.util.ArrayList;
+import java.util.EnumSet;
+
+import kes5219.improvedfirstperson.common.ModImprovedFirstPerson;
+
+import org.lwjgl.input.Keyboard;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import cpw.mods.fml.client.registry.KeyBindingRegistry.KeyHandler;
+import cpw.mods.fml.common.TickType;
+
+public class IFPKeyHandler extends KeyHandler {
+    
+    static KeyBinding toggle = new KeyBinding("Toggle IFP View", Keyboard.KEY_F6);
+    
+    // Simple constructor that sends arguments to the KeyHandler constructor.
+    public IFPKeyHandler() {
+        super(new KeyBinding[]{toggle},
+                new boolean[]{false});
+    }
+    
+    @Override
+    public String getLabel() {
+        return "ModImprovedFirstPersonBindings";
+    }
+
+    // Key down method, used to toggle the body rendering.
+    @Override
+    public void keyDown(EnumSet<TickType> types, KeyBinding kb, boolean tickEnd, boolean isRepeat)
+    {
+        if (tickEnd && IFPClientProxy.getMC().currentScreen == null)
+        {
+            if (kb.keyCode == toggle.keyCode)
+            {
+                ModImprovedFirstPerson.enableBodyRender = !ModImprovedFirstPerson.enableBodyRender;
+            }
+        }
+    }
+    
+    @Override
+    public void keyUp(EnumSet<TickType> types, KeyBinding kb, boolean tickEnd) { }
+    
+    @Override
+    public EnumSet<TickType> ticks() {
+        return EnumSet.of(TickType.CLIENT);
+    }
+
+}

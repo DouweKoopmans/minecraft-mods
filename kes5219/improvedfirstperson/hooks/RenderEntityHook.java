@@ -1,28 +1,27 @@
-/*  1:   */ package kes5219.improvedfirstperson.hooks;
-/*  2:   */ 
-/*  3:   */ import atv;
-/*  4:   */ import aul;
-/*  5:   */ import bdi;
-/*  6:   */ import bgl;
-/*  7:   */ import kes5219.improvedfirstperson.client.IFPClientProxy;
-/*  8:   */ import kes5219.improvedfirstperson.common.ModImprovedFirstPerson;
-/*  9:   */ import kes5219.utils.misc.PartialTickRetriever;
-/* 10:   */ import net.minecraftforge.client.MinecraftForgeClient;
-/* 11:   */ import of;
-/* 12:   */ 
-/* 13:   */ public class RenderEntityHook
-/* 14:   */ {
-/* 15:   */   public static void onRenderEntities()
-/* 16:   */   {
-/* 17:22 */     atv mc = IFPClientProxy.getMC();
-/* 18:24 */     if ((ModImprovedFirstPerson.enableBodyRender) && (mc.u.aa == 0) && (!mc.h.bh()) && (mc.i.shouldRenderInPass(MinecraftForgeClient.getRenderPass()))) {
-/* 19:28 */       bgl.a.a(mc.i, PartialTickRetriever.getPartialTick());
-/* 20:   */     }
-/* 21:   */   }
-/* 22:   */ }
+package kes5219.improvedfirstperson.hooks;
 
-
-/* Location:           C:\Users\Benoît\Desktop\ImprovedFirstPerson1.6.4r1.jar
- * Qualified Name:     kes5219.improvedfirstperson.hooks.RenderEntityHook
- * JD-Core Version:    0.7.0.1
- */
+import kes5219.improvedfirstperson.client.IFPClientProxy;
+import kes5219.improvedfirstperson.common.ModImprovedFirstPerson;
+import kes5219.utils.misc.PartialTickRetriever;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraftforge.client.MinecraftForgeClient;
+
+public class RenderEntityHook {
+
+	//Class transformer is used to inject a code calling the following method right
+	//after the line 512 of the class RenderGlobal, where it says
+	//this.theWorld.theProfiler.endStartSection("tileentities");
+	//The primary purpose of this method is to enable rendering of the player body
+	//even in first person mod.
+	public static void onRenderEntities() {
+		Minecraft mc = IFPClientProxy.getMC();
+		
+		if (ModImprovedFirstPerson.enableBodyRender &&
+				mc.gameSettings.thirdPersonView == 0 &&
+				!mc.thePlayer.isPlayerSleeping() &&
+				mc.renderViewEntity.shouldRenderInPass(MinecraftForgeClient.getRenderPass())) {
+			RenderManager.instance.renderEntitySimple(mc.renderViewEntity, PartialTickRetriever.getPartialTick());
+		}
+	}
+}

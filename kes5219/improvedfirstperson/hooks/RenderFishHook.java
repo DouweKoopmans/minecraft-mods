@@ -1,34 +1,32 @@
-/*  1:   */ package kes5219.improvedfirstperson.hooks;
-/*  2:   */ 
-/*  3:   */ import atv;
-/*  4:   */ import aul;
-/*  5:   */ import kes5219.improvedfirstperson.client.IFPClientProxy;
-/*  6:   */ import kes5219.improvedfirstperson.common.ModImprovedFirstPerson;
-/*  7:   */ 
-/*  8:   */ public class RenderFishHook
-/*  9:   */ {
-/* 10:   */   private static int thirdPersonViewTemp;
-/* 11:   */   
-/* 12:   */   public static void onMethodStart()
-/* 13:   */   {
-/* 14:18 */     if (ModImprovedFirstPerson.enableBodyRender)
-/* 15:   */     {
-/* 16:20 */       atv mc = IFPClientProxy.getMC();
-/* 17:21 */       thirdPersonViewTemp = mc.u.aa;
-/* 18:22 */       mc.u.aa = 1;
-/* 19:   */     }
-/* 20:   */   }
-/* 21:   */   
-/* 22:   */   public static void onMethodEnd()
-/* 23:   */   {
-/* 24:29 */     if (ModImprovedFirstPerson.enableBodyRender) {
-/* 25:31 */       IFPClientProxy.getMC().u.aa = thirdPersonViewTemp;
-/* 26:   */     }
-/* 27:   */   }
-/* 28:   */ }
+package kes5219.improvedfirstperson.hooks;
 
-
-/* Location:           C:\Users\Benoît\Desktop\ImprovedFirstPerson1.6.4r1.jar
- * Qualified Name:     kes5219.improvedfirstperson.hooks.RenderFishHook
- * JD-Core Version:    0.7.0.1
- */
+import kes5219.improvedfirstperson.client.IFPClientProxy;
+import kes5219.improvedfirstperson.common.ModImprovedFirstPerson;
+import net.minecraft.client.Minecraft;
+
+public class RenderFishHook {
+	private static int thirdPersonViewTemp;
+	
+	//These two methods are used to trick Minecraft into rendering the fishlines
+	//as if the view was in third person even in first person view.
+	
+	//Class transformer is used to inject a code calling the following method in
+	//the beginning of the method doRenderFishHook in class RenderFish.
+	public static void onMethodStart() {
+		if (ModImprovedFirstPerson.enableBodyRender)
+		{
+			Minecraft mc = IFPClientProxy.getMC();
+			thirdPersonViewTemp = mc.gameSettings.thirdPersonView;
+			mc.gameSettings.thirdPersonView = 1;
+		}
+	}
+	
+	//Class transformer is used to inject a code calling the following method in
+	//the beginning of the method doRenderFishHook in class RenderFish.
+	public static void onMethodEnd() {
+		if (ModImprovedFirstPerson.enableBodyRender)
+		{
+			IFPClientProxy.getMC().gameSettings.thirdPersonView = thirdPersonViewTemp;
+		}
+	}
+}
