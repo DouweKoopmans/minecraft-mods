@@ -1,8 +1,10 @@
 package kes5219.improvedfirstperson.common;
 
 import java.util.HashMap;
+
+import kes5219.improvedfirstperson.common.IFPCommonProxy;
 import net.minecraftforge.common.config.Configuration;
-import com.mojang.authlib.properties.Property;
+import net.minecraftforge.common.config.Property;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
@@ -11,7 +13,7 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
-@Mod(modid = ModImprovedFirstPerson.MOD_ID, name = "Improved First Person View Mod", version = "1.7.10_r1_vrackfall")
+@Mod(modid = ModImprovedFirstPerson.MOD_ID, name = "Improved First Person View Mod", version = "1.7.10_vrackfall")
 public class ModImprovedFirstPerson
 {
     public static final String MOD_ID = "kes5219_improvedfirstperson";
@@ -35,9 +37,9 @@ public class ModImprovedFirstPerson
     public static float leanAmount = 0.75F;
     public static boolean wibblyWobblyHUD = false;
 
-    private static net.minecraftforge.common.config.Property getProperty(String category, String key, Object defaultValue)
+    private static Property getProperty(String category, String key, Object defaultValue)
     {
-        net.minecraftforge.common.config.Property property = null;
+        Property property = null;
 
         if(defaultValue instanceof String)
             property = config.get(category, key, (String)defaultValue);
@@ -62,7 +64,7 @@ public class ModImprovedFirstPerson
         return property;
     }
 
-    private static net.minecraftforge.common.config.Property getGenProperty(String key, Object defaultValue)
+    private static Property getGenProperty(String key, Object defaultValue)
     {
         return getProperty(Configuration.CATEGORY_GENERAL, key, defaultValue);
     }

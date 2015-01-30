@@ -1,43 +1,24 @@
 package kes5219.utils.misc;
 
-import java.util.EnumSet;
-
 import net.minecraft.client.Minecraft;
-
-import cpw.mods.fml.common.ITickHandler;
-import cpw.mods.fml.common.TickType;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.TickEvent;
 
 //Retrieves partial tick which is crucial for rendering
-public class PartialTickRetriever implements ITickHandler {
+public class PartialTickRetriever {
 
 	private static float partialTick;
 	
-	 
-	public void tickStart(EnumSet<TickType> type, Object... tickData) {
-		if(type.contains(TickType.RENDER)) {
-			if(Minecraft.getMinecraft().theWorld != null) {		
-				partialTick = (Float)tickData[0];
-			}
+	@SubscribeEvent
+	public void onRenderTick(TickEvent.RenderTickEvent event) {
+		if(Minecraft.getMinecraft().theWorld != null) {	
+			partialTick = event.renderTickTime;
 		}
-	}	
+	}
 	
 	public static float getPartialTick()
 	{
 		return partialTick;
-	}
-	
-	 
-	public void tickEnd(EnumSet<TickType> type, Object... tickData) {}
-	
-	 
-	public EnumSet<TickType> ticks() {
-		return EnumSet.of(TickType.RENDER);
-	}
-
-	 
-	public String getLabel() {
-		// TODO 
-		return null;
 	}
 
 }

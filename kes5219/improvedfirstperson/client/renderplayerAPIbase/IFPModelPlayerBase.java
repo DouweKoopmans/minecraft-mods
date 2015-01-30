@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.item.EnumAction;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBow;
@@ -41,7 +42,7 @@ public class IFPModelPlayerBase  extends ModelPlayerBase {
 		//modelPlayer.bipedLeftLeg.rotationPointX = 2.0f;
 		ItemStack item = player.getHeldItem();
 
-		if (item != null && Item.itemsList[item.itemID] instanceof ItemBow) {
+		if (item != null && item.getItem() instanceof ItemBow) {
 			modelPlayer.heldItemLeft = 1;
 			modelPlayer.heldItemRight = 0;
 		}
@@ -73,7 +74,7 @@ public class IFPModelPlayerBase  extends ModelPlayerBase {
 
 		ItemStack item = player.getHeldItem();
 
-		if (item != null && (Item.map.itemID == item.itemID || Item.emptyMap.itemID == item.itemID)) {
+		if (item != null && (Items.filled_map == item.getItem() || Items.map == item.getItem())) {
 			modelPlayer.bipedRightArm.rotateAngleX = -(float)Math.PI/9;
 			modelPlayer.bipedLeftArm.rotateAngleX = -(float)Math.PI/9;
 			modelPlayer.bipedRightArm.rotateAngleZ = 0;
@@ -137,7 +138,7 @@ public class IFPModelPlayerBase  extends ModelPlayerBase {
 			}
 		}
 
-		if (item == null || Item.itemsList[item.itemID] instanceof ItemBow) {
+		if (item == null || item.getItem() instanceof ItemBow) {
 			modelPlayer.heldItemLeft = 0;
 		}
 

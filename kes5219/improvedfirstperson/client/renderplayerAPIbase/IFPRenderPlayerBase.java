@@ -102,7 +102,7 @@ public class IFPRenderPlayerBase extends RenderPlayerBase {
 				EntityArrow arrow = new EntityArrow(entity.worldObj, entity.posX, entity.posY, entity.posZ);
 				Random random = null;
 	
-				ArrayList<ArrowPosition> arrowList = arrowCache.get(entity.entityId);
+				ArrayList<ArrowPosition> arrowList = arrowCache.get(entity.getEntityId());
 	
 				if (arrowList == null || arrowList.size() != arrowCount)
 					arrowList = new ArrayList();
@@ -141,7 +141,7 @@ public class IFPRenderPlayerBase extends RenderPlayerBase {
 						AxisAlignedBB headBB = AxisAlignedBB.getAABBPool().getAABB(-0.6F, -0.8F, -0.6F, 0.6F, 0.3F, 0.6F);
 						
 						if (random == null)
-							random = new Random(entity.entityId);
+							random = new Random(entity.getEntityId());
 	
 						int tries = 0;
 	
@@ -189,7 +189,7 @@ public class IFPRenderPlayerBase extends RenderPlayerBase {
 					GL11.glPopMatrix();
 				}
 	
-				arrowCache.put(entity.entityId, arrowList);
+				arrowCache.put(entity.getEntityId(), arrowList);
 			}
 		}
 		else
