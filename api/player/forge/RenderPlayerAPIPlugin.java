@@ -1,15 +1,12 @@
 package api.player.forge;
 
 import java.util.*;
-
 import cpw.mods.fml.relauncher.*;
 
 @IFMLLoadingPlugin.MCVersion("1.7.10")
 @IFMLLoadingPlugin.TransformerExclusions("api.player.forge")
 public class RenderPlayerAPIPlugin implements IFMLLoadingPlugin
 {
-	public static String Version = "1.1";
-
 	public static boolean isObfuscated;
 
 	public String[] getASMTransformerClass()

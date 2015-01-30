@@ -8,12 +8,6 @@ public interface IModelPlayer
 
 	float getExpandParameter();
 
-	float getYOffsetParameter();
-
-	int getTextureWidthParameter();
-
-	int getTextureHeightParameter();
-
 	String getModelPlayerType();
 
 	Object dynamic(String key, Object[] parameters);

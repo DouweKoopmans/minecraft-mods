@@ -22,7 +22,7 @@ public class RenderPlayerAPIContainer extends DummyModContainer
 
 		meta.modId = "RenderPlayerAPI";
 		meta.name = "Render Player API";
-		meta.version = RenderPlayerAPIPlugin.Version;
+		meta.version = "1.0";
 		meta.description = "Render Player API for Minecraft Forge";
 		meta.url = "http://www.minecraftforum.net/topic/1261354-";
 		meta.authorList = Arrays.asList(new String[] { "Divisor" });

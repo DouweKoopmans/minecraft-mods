@@ -17,11 +17,11 @@ public abstract class ModelPlayerBase
 	{
 	}
 
-	public void beforeLocalConstructing(float paramFloat1, float paramFloat2, int paramInt1, int paramInt2)
+	public void beforeLocalConstructing(float paramFloat)
 	{
 	}
 
-	public void afterLocalConstructing(float paramFloat1, float paramFloat2, int paramInt1, int paramInt2)
+	public void afterLocalConstructing(float paramFloat)
 	{
 	}
 

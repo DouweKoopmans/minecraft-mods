@@ -57,16 +57,16 @@ public final class ModelPlayerAPI
 				String[] errorMessageParts = new String[]
 				{
 					"========================================",
-					"The API \"Model Player\" version " + api.player.forge.RenderPlayerAPIPlugin.Version + " of the mod \"Render Player API Core " + api.player.forge.RenderPlayerAPIPlugin.Version + "\" can not be created!",
+					"The API \"Model Player\" version 1.0 of the mod \"Render Player API core 1.0\" can not be created!",
 					"----------------------------------------",
 					"Mandatory member method \"{0} getModelPlayerBase({3})\" not found in class \"{1}\".",
 					"There are three scenarios this can happen:",
-					"* Minecraft Forge is missing a Render Player API Core which Minecraft version matches its own.",
-					"  Download and install the latest Render Player API Core for the Minecraft version you were trying to run.",
-					"* The code of the class \"{2}\" of Render Player API Core has been modified beyond recognition by another Minecraft Forge coremod.",
+					"* Minecraft Forge is missing a Render Player API core which Minecraft version matches its own.",
+					"  Download and install the latest Render Player API core for the Minecraft version you were trying to run.",
+					"* The code of the class \"{2}\" of Render Player API core has been modified beyond recognition by another Minecraft Forge coremod.",
 					"  Try temporary deinstallation of other core mods to find the culprit and deinstall it permanently to fix this specific problem.",
-					"* Render Player API Core has not been installed correctly.",
-					"  Deinstall Render Player API Core and install it again following the installation instructions in the readme file.",
+					"* Render Player API core has not been installed correctly.",
+					"  Deinstall Render Player API core and install it again following the installation instructions in the readme file.",
 					"========================================"
 				};
 
@@ -91,7 +91,7 @@ public final class ModelPlayerAPI
 				throw new RuntimeException(errorMessage, exception);
 			}
 
-			log("Model Player " + api.player.forge.RenderPlayerAPIPlugin.Version + " Created");
+			log("Model Player 1.0 Created");
 			isCreated = true;
 		}
 
@@ -195,8 +195,8 @@ public final class ModelPlayerAPI
 
 		}
 
-		addMethod(id, baseClass, beforeLocalConstructingHookTypes, "beforeLocalConstructing", float.class, float.class, int.class, int.class);
-		addMethod(id, baseClass, afterLocalConstructingHookTypes, "afterLocalConstructing", float.class, float.class, int.class, int.class);
+		addMethod(id, baseClass, beforeLocalConstructingHookTypes, "beforeLocalConstructing", float.class);
+		addMethod(id, baseClass, afterLocalConstructingHookTypes, "afterLocalConstructing", float.class);
 
 
 		addMethod(id, baseClass, beforeGetRandomModelBoxHookTypes, "beforeGetRandomModelBox", java.util.Random.class);
@@ -568,11 +568,11 @@ public final class ModelPlayerAPI
 		return methods;
 	}
 
-	public static ModelPlayerAPI create(IModelPlayerAPI modelPlayer, float paramFloat1, float paramFloat2, int paramInt1, int paramInt2, String type)
+	public static ModelPlayerAPI create(IModelPlayerAPI modelPlayer, float paramFloat, String type)
 	{
 		if(allBaseConstructors.size() > 0 && !initialized)
 			initialize();
-		return new ModelPlayerAPI(modelPlayer, paramFloat1, paramFloat2, paramInt1, paramInt2, type);
+		return new ModelPlayerAPI(modelPlayer, paramFloat, type);
 	}
 
 	private static void initialize()
@@ -631,7 +631,7 @@ public final class ModelPlayerAPI
 		return allInstances.toArray(new api.player.model.ModelPlayer[allInstances.size()]);
 	}
 
-	public static void beforeLocalConstructing(IModelPlayerAPI modelPlayer, float paramFloat1, float paramFloat2, int paramInt1, int paramInt2)
+	public static void beforeLocalConstructing(IModelPlayerAPI modelPlayer, float paramFloat)
 	{
 		ModelPlayerAPI modelPlayerAPI = modelPlayer.getModelPlayerAPI();
 		if(modelPlayerAPI != null)
@@ -640,14 +640,14 @@ public final class ModelPlayerAPI
 		allInstances.add(modelPlayer);
 
 		if(modelPlayerAPI != null)
-			modelPlayerAPI.beforeLocalConstructing(paramFloat1, paramFloat2, paramInt1, paramInt2);
+			modelPlayerAPI.beforeLocalConstructing(paramFloat);
 	}
 
-	public static void afterLocalConstructing(IModelPlayerAPI modelPlayer, float paramFloat1, float paramFloat2, int paramInt1, int paramInt2)
+	public static void afterLocalConstructing(IModelPlayerAPI modelPlayer, float paramFloat)
 	{
 		ModelPlayerAPI modelPlayerAPI = modelPlayer.getModelPlayerAPI();
 		if(modelPlayerAPI != null)
-			modelPlayerAPI.afterLocalConstructing(paramFloat1, paramFloat2, paramInt1, paramInt2);
+			modelPlayerAPI.afterLocalConstructing(paramFloat);
 	}
 
 	public static ModelPlayerBase getModelPlayerBase(IModelPlayerAPI modelPlayer, String baseId)
@@ -673,31 +673,7 @@ public final class ModelPlayerAPI
 	{
 		ModelPlayerAPI modelPlayerAPI = modelPlayer.getModelPlayerAPI();
 		if(modelPlayerAPI != null)
-			return modelPlayerAPI.paramFloat1;
-		return 0;
-	}
-
-	public static float getYOffsetParameter(IModelPlayerAPI modelPlayer)
-	{
-		ModelPlayerAPI modelPlayerAPI = modelPlayer.getModelPlayerAPI();
-		if(modelPlayerAPI != null)
-			return modelPlayerAPI.paramFloat2;
-		return 0;
-	}
-
-	public static int getTextureWidthParameter(IModelPlayerAPI modelPlayer)
-	{
-		ModelPlayerAPI modelPlayerAPI = modelPlayer.getModelPlayerAPI();
-		if(modelPlayerAPI != null)
-			return modelPlayerAPI.paramInt1;
-		return 0;
-	}
-
-	public static int getTextureHeightParameter(IModelPlayerAPI modelPlayer)
-	{
-		ModelPlayerAPI modelPlayerAPI = modelPlayer.getModelPlayerAPI();
-		if(modelPlayerAPI != null)
-			return modelPlayerAPI.paramInt2;
+			return modelPlayerAPI.paramFloat;
 		return 0;
 	}
 
@@ -755,13 +731,10 @@ public final class ModelPlayerAPI
 		return superiors != null ? superiors : EmptySortMap;
 	}
 
-	private ModelPlayerAPI(IModelPlayerAPI modelPlayer, float paramFloat1, float paramFloat2, int paramInt1, int paramInt2, String type)
+	private ModelPlayerAPI(IModelPlayerAPI modelPlayer, float paramFloat, String type)
 	{
 		this.modelPlayer = modelPlayer;
-		this.paramFloat1 = paramFloat1;
-		this.paramFloat2 = paramFloat2;
-		this.paramInt1 = paramInt1;
-		this.paramInt2 = paramInt2;
+		this.paramFloat = paramFloat;
 		this.type = type;
 	}
 
@@ -903,19 +876,19 @@ public final class ModelPlayerAPI
 		return result;
 	}
 
-	private void beforeLocalConstructing(float paramFloat1, float paramFloat2, int paramInt1, int paramInt2)
+	private void beforeLocalConstructing(float paramFloat)
 	{
 		if(beforeLocalConstructingHooks != null)
 			for(int i = beforeLocalConstructingHooks.length - 1; i >= 0 ; i--)
-				beforeLocalConstructingHooks[i].beforeLocalConstructing(paramFloat1, paramFloat2, paramInt1, paramInt2);
+				beforeLocalConstructingHooks[i].beforeLocalConstructing(paramFloat);
 		beforeLocalConstructingHooks = null;
 	}
 
-	private void afterLocalConstructing(float paramFloat1, float paramFloat2, int paramInt1, int paramInt2)
+	private void afterLocalConstructing(float paramFloat)
 	{
 		if(afterLocalConstructingHooks != null)
 			for(int i = 0; i < afterLocalConstructingHooks.length; i++)
-				afterLocalConstructingHooks[i].afterLocalConstructing(paramFloat1, paramFloat2, paramInt1, paramInt2);
+				afterLocalConstructingHooks[i].afterLocalConstructing(paramFloat);
 		afterLocalConstructingHooks = null;
 	}
 
@@ -973,7 +946,7 @@ public final class ModelPlayerAPI
 			return null;
 
 		Method method = methods.get(key);
-		if(method == null)
+		if(methods == null)
 			return null;
 
 		return execute(getModelPlayerBase(id), method, parameters);
@@ -1047,9 +1020,6 @@ public final class ModelPlayerAPI
 
 	protected ModelPlayerBase GetOverwrittenGetRandomModelBox(ModelPlayerBase overWriter)
 	{
-		if (overrideGetRandomModelBoxHooks == null)
-			return overWriter;
-
 		for(int i = 0; i < overrideGetRandomModelBoxHooks.length; i++)
 			if(overrideGetRandomModelBoxHooks[i] == overWriter)
 				if(i == 0)
@@ -1109,9 +1079,6 @@ public final class ModelPlayerAPI
 
 	protected ModelPlayerBase GetOverwrittenGetTextureOffset(ModelPlayerBase overWriter)
 	{
-		if (overrideGetTextureOffsetHooks == null)
-			return overWriter;
-
 		for(int i = 0; i < overrideGetTextureOffsetHooks.length; i++)
 			if(overrideGetTextureOffsetHooks[i] == overWriter)
 				if(i == 0)
@@ -1167,9 +1134,6 @@ public final class ModelPlayerAPI
 
 	protected ModelPlayerBase GetOverwrittenRender(ModelPlayerBase overWriter)
 	{
-		if (overrideRenderHooks == null)
-			return overWriter;
-
 		for(int i = 0; i < overrideRenderHooks.length; i++)
 			if(overrideRenderHooks[i] == overWriter)
 				if(i == 0)
@@ -1225,9 +1189,6 @@ public final class ModelPlayerAPI
 
 	protected ModelPlayerBase GetOverwrittenRenderCloak(ModelPlayerBase overWriter)
 	{
-		if (overrideRenderCloakHooks == null)
-			return overWriter;
-
 		for(int i = 0; i < overrideRenderCloakHooks.length; i++)
 			if(overrideRenderCloakHooks[i] == overWriter)
 				if(i == 0)
@@ -1283,9 +1244,6 @@ public final class ModelPlayerAPI
 
 	protected ModelPlayerBase GetOverwrittenRenderEars(ModelPlayerBase overWriter)
 	{
-		if (overrideRenderEarsHooks == null)
-			return overWriter;
-
 		for(int i = 0; i < overrideRenderEarsHooks.length; i++)
 			if(overrideRenderEarsHooks[i] == overWriter)
 				if(i == 0)
@@ -1341,9 +1299,6 @@ public final class ModelPlayerAPI
 
 	protected ModelPlayerBase GetOverwrittenSetLivingAnimations(ModelPlayerBase overWriter)
 	{
-		if (overrideSetLivingAnimationsHooks == null)
-			return overWriter;
-
 		for(int i = 0; i < overrideSetLivingAnimationsHooks.length; i++)
 			if(overrideSetLivingAnimationsHooks[i] == overWriter)
 				if(i == 0)
@@ -1399,9 +1354,6 @@ public final class ModelPlayerAPI
 
 	protected ModelPlayerBase GetOverwrittenSetRotationAngles(ModelPlayerBase overWriter)
 	{
-		if (overrideSetRotationAnglesHooks == null)
-			return overWriter;
-
 		for(int i = 0; i < overrideSetRotationAnglesHooks.length; i++)
 			if(overrideSetRotationAnglesHooks[i] == overWriter)
 				if(i == 0)
@@ -1457,9 +1409,6 @@ public final class ModelPlayerAPI
 
 	protected ModelPlayerBase GetOverwrittenSetTextureOffset(ModelPlayerBase overWriter)
 	{
-		if (overrideSetTextureOffsetHooks == null)
-			return overWriter;
-
 		for(int i = 0; i < overrideSetTextureOffsetHooks.length; i++)
 			if(overrideSetTextureOffsetHooks[i] == overWriter)
 				if(i == 0)
@@ -1489,10 +1438,7 @@ public final class ModelPlayerAPI
 
 	
 	protected final IModelPlayerAPI modelPlayer;
-	private final float paramFloat1;
-	private final float paramFloat2;
-	private final int paramInt1;
-	private final int paramInt2;
+	private final float paramFloat;
 	private final String type;
 
 	private final static Set<String> keys = new HashSet<String>();

@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 /*
 import thehippomaster.AnimatedPlayer.AnimatedPlayer;
+
 */
 import api.player.model.ModelPlayerAPI;
 import api.player.render.RenderPlayerAPI;
@@ -40,6 +41,7 @@ public class IFPClientProxy extends IFPCommonProxy {
 		ModelPlayerAPI.register("kes5219_improvedfirstperson", IFPModelPlayerBase.class);
         
 		FMLCommonHandler.instance().bus().register(new IFPKeyHandler());
+		
 /*		
 		try
 		{

@@ -63,22 +63,7 @@ public final class ModelPlayerClassVisitor extends ClassVisitor
 
 	public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions)
 	{
-		if(name.equals("<init>") && desc.equals("()V"))
-		{
-			desc = "(Ljava/lang/String;)V";
-
-			MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", signature, exceptions);
-			mv.visitVarInsn(Opcodes.ALOAD, 0);
-			mv.visitInsn(Opcodes.ACONST_NULL);
-			mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "api/player/model/ModelPlayer", "<init>", desc);
-			mv.visitInsn(Opcodes.RETURN);
-			mv.visitMaxs(0, 0);
-			mv.visitEnd();
-
-			return new ModelPlayerConstructorVisitor(super.visitMethod(access, name, desc, signature, exceptions), isObfuscated, false, 1);
-		}
-
-		if(name.equals("<init>") && desc.equals("(F)V"))
+		if(name.equals("<init>"))
 		{
 			desc = "(FLjava/lang/String;)V";
 
@@ -91,28 +76,8 @@ public final class ModelPlayerClassVisitor extends ClassVisitor
 			mv.visitMaxs(0, 0);
 			mv.visitEnd();
 
-			return new ModelPlayerConstructorVisitor(super.visitMethod(access, name, desc, signature, exceptions), isObfuscated, false, 2);
+			return new ModelPlayerConstructorVisitor(super.visitMethod(access, name, desc, signature, exceptions), isObfuscated);
 		}
-
-		if(name.equals("<init>") && desc.equals("(FFII)V"))
-		{
-			desc = "(FFIILjava/lang/String;)V";
-
-			MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "(FFII)V", signature, exceptions);
-			mv.visitVarInsn(Opcodes.ALOAD, 0);
-			mv.visitVarInsn(Opcodes.FLOAD, 1);
-			mv.visitVarInsn(Opcodes.FLOAD, 2);
-			mv.visitVarInsn(Opcodes.ILOAD, 3);
-			mv.visitVarInsn(Opcodes.ILOAD, 4);
-			mv.visitInsn(Opcodes.ACONST_NULL);
-			mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "api/player/model/ModelPlayer", "<init>", desc);
-			mv.visitInsn(Opcodes.RETURN);
-			mv.visitMaxs(0, 0);
-			mv.visitEnd();
-
-			return new ModelPlayerConstructorVisitor(super.visitMethod(access, name, desc, signature, exceptions), isObfuscated, true, 5);
-		}
-
 
 		if(name.equals(isObfuscated ? "a" : "getRandomModelBox") && desc.equals(isObfuscated ? "(Ljava/util/Random;)Lbix;" : "(Ljava/util/Random;)Lnet/minecraft/client/model/ModelRenderer;"))
 		{
@@ -822,27 +787,6 @@ public final class ModelPlayerClassVisitor extends ClassVisitor
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, "api/player/model/ModelPlayerAPI", "getExpandParameter", "(Lapi/player/model/IModelPlayerAPI;)F");
 		mv.visitInsn(Opcodes.FRETURN);
 		mv.visitMaxs(0, 0);
-		mv.visitEnd();
-
-		mv = cv.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL, "getYOffsetParameter", "()F", null, null);
-		mv.visitVarInsn(/*Opcodes*/25/*ALOAD*/, /*0*/0);
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, "api/player/model/ModelPlayerAPI", "getYOffsetParameter", "(Lapi/player/model/IModelPlayerAPI;)F");
-		mv.visitInsn(Opcodes.FRETURN);
-		mv.visitMaxs(0, 1);
-		mv.visitEnd();
-
-		mv = cv.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL, "getTextureWidthParameter", "()I", null, null);
-		mv.visitVarInsn(/*Opcodes*/25/*ALOAD*/, /*0*/0);
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, "api/player/model/ModelPlayerAPI", "getTextureWidthParameter", "(Lapi/player/model/IModelPlayerAPI;)I");
-		mv.visitInsn(Opcodes.IRETURN);
-		mv.visitMaxs(0, 2);
-		mv.visitEnd();
-
-		mv = cv.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL, "getTextureHeightParameter", "()I", null, null);
-		mv.visitVarInsn(/*Opcodes*/25/*ALOAD*/, /*0*/0);
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, "api/player/model/ModelPlayerAPI", "getTextureHeightParameter", "(Lapi/player/model/IModelPlayerAPI;)I");
-		mv.visitInsn(Opcodes.IRETURN);
-		mv.visitMaxs(0, 3);
 		mv.visitEnd();
 
 		mv = cv.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL, "getModelPlayerType", "()Ljava/lang/String;", null, null);
