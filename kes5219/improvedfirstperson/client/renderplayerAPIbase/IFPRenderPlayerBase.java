@@ -30,264 +30,285 @@ import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemCarrotOnAStick;
 import net.minecraft.item.ItemFishingRod;
 import net.minecraft.item.ItemStack;
-package kes5219.improvedfirstperson.client.renderplayerAPIbase;
-
-import org.lwjgl.opengl.GL11;
-
-import api.player.model.ModelPlayer;
-import api.player.model.ModelPlayerAPI;
-import api.player.model.ModelPlayerBase;
-import kes5219.improvedfirstperson.client.IFPClientProxy;
-import kes5219.improvedfirstperson.common.ModImprovedFirstPerson;
-import kes5219.utils.misc.PartialTickRetriever;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.EnumAction;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemBow;
-import net.minecraft.item.ItemFood;
-import net.minecraft.item.ItemMap;
-import net.minecraft.item.ItemMapBase;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemSword;
+import net.minecraft.item.ItemTool;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
+import net.minecraftforge.client.MinecraftForgeClient;
 
-public class IFPModelPlayerBase  extends ModelPlayerBase {
-    
-    private float prevStrafeOffset = 0;
-    
-    public IFPModelPlayerBase(ModelPlayerAPI modelPlayerAPI) {
-        super(modelPlayerAPI);
-    }
+public class IFPRenderPlayerBase extends RenderPlayerBase {
+	public IFPRenderPlayerBase(RenderPlayerAPI renderPlayerAPI) {
+		super(renderPlayerAPI);
+	}
 
-    @Override
-    public void beforeSetRotationAngles(float legSwing, float legYaw, float ticksExistedPartial, float headYawOffset, float pitch, float scale, Entity entity)
+    public void afterRenderModel(EntityLivingBase entity, float limbSwing, float limbYaw, float existedTicksPartial, float headYawOffset, float pitch, float scale)
     {
-        EntityPlayer player = (EntityPlayer)entity;
-        //modelPlayer.bipedRightLeg.rotationPointZ = 0.0f;
-        //modelPlayer.bipedRightLeg.rotationPointX = -2.0f;
-        //modelPlayer.bipedLeftLeg.rotationPointZ = 0.0f;
-        //modelPlayer.bipedLeftLeg.rotationPointX = 2.0f;
-        ItemStack item = player.getHeldItem();
-
-        if (item != null && Item.itemsList[item.itemID] instanceof ItemBow) {
-            modelPlayer.heldItemLeft = 1;
-            modelPlayer.heldItemRight = 0;
-        }
     }
+	/*
+	public void drawFirstPersonHand(EntityPlayer entityPlayer) {
+		new Exception().printStackTrace();
+		//does not get called at all since the method renderItemInFirstPerson is modified
+		//do nothing
+	}*/
 
-    @Override
-    public void afterSetRotationAngles(float legSwing, float legYaw, float ticksExistedPartial, float headYawOffset, float pitch, float scale, Entity entity) {
-        Minecraft mc = Minecraft.getMinecraft();
-        EntityPlayer player = (EntityPlayer)entity;
-        float partialTick = PartialTickRetriever.getPartialTick();
+	@Override
+	public void renderSpecialHeadArmor(AbstractClientPlayer player, float partialTick) {
+		Minecraft mc = IFPClientProxy.getMC();
+		/*if(mc.gameSettings.thirdPersonView > 0 && var1 == mc.renderViewEntity) {
+			renderPlayer.localRenderSpecialHeadArmor(var1, var2);
+		}*/
+		if(player != mc.renderViewEntity ||
+				mc.gameSettings.thirdPersonView > 0 ||
+				RenderManager.instance.playerViewY == 180/*if the inventory is open*/) {
+			renderPlayer.localRenderSpecialHeadArmor(player, partialTick);
+		}
+	}
+
+	class ArrowPosition extends Object {
+		ModelRenderer modelRenderer;
+		float randX;
+		float randY;
+		float randZ;
+		float arrowX;
+		float arrowY;
+		float arrowZ;
+
+		public ArrowPosition(ModelRenderer modelRenderer,
+				float randX, float randY, float randZ,
+				float arrowX, float arrowY, float arrowZ)
+		{
+			this.modelRenderer = modelRenderer;
+			this.randX = randX;
+			this.randY = randY;
+			this.randZ = randZ;
+			this.arrowX = arrowX;
+			this.arrowY = arrowY;
+			this.arrowZ = arrowZ;
+		}
+	}
+	HashMap<Integer, ArrayList<ArrowPosition>> arrowCache = new HashMap();
+
+	@Override
+	public void renderArrowsStuckInEntity(EntityLivingBase entity, float partialTick)
+	{
+		Minecraft mc = IFPClientProxy.getMC();
+		
+		if (entity == mc.thePlayer)
+		{
+			int arrowCount = entity.getArrowCountInEntity();
+	
+			if (arrowCount > 0)
+			{
+				EntityArrow arrow = new EntityArrow(entity.worldObj, entity.posX, entity.posY, entity.posZ);
+				Random random = null;
+	
+				ArrayList<ArrowPosition> arrowList = arrowCache.get(entity.entityId);
+	
+				if (arrowList == null || arrowList.size() != arrowCount)
+					arrowList = new ArrayList();
+	
+				for (int arrowIndex = 0; arrowIndex < arrowCount; ++arrowIndex)
+				{
+					GL11.glPushMatrix();
+	
+					ModelRenderer modelRenderer = null;
+					ModelBox box = null;
+	
+					// Translation
+					float randX = 0;
+					float randY = 0;
+					float randZ = 0;
+					float arrowX = 0;
+					float arrowY = 0;
+					float arrowZ = 0;
+	
+					if (arrowList.size() == arrowCount)
+					{
+						ArrowPosition arrowPos = arrowList.get(arrowIndex);
+	
+						if (arrowPos != null)
+						{
+							modelRenderer = arrowPos.modelRenderer;
+							randX = arrowPos.randX;
+							randY = arrowPos.randY;
+							randZ = arrowPos.randZ;
+							arrowX = arrowPos.arrowX;
+						}
+					}
+	
+					if (modelRenderer == null)
+					{
+						AxisAlignedBB headBB = AxisAlignedBB.getAABBPool().getAABB(-0.6F, -0.8F, -0.6F, 0.6F, 0.3F, 0.6F);
+						
+						if (random == null)
+							random = new Random(entity.entityId);
+	
+						int tries = 0;
+	
+						while (tries < 10 && (modelRenderer == null ||
+								(entity == mc.renderViewEntity &&
+								headBB.isVecInside(entity.worldObj.getWorldVec3Pool().getVecFromPool(arrowX, arrowY, arrowZ)))))
+						{
+							modelRenderer = renderPlayer.getMainModelField().getRandomModelBox(random);
+							box = (ModelBox)modelRenderer.cubeList.get(random.nextInt(modelRenderer.cubeList.size()));
+	
+							randX = random.nextFloat();
+							randY = random.nextFloat();
+							randZ = random.nextFloat();
+	
+							arrowX = (box.posX1 + (box.posX2 - box.posX1) * randX) / 16.0F;
+							arrowY = (box.posY1 + (box.posY2 - box.posY1) * randY) / 16.0F;
+							arrowZ = (box.posZ1 + (box.posZ2 - box.posZ1) * randZ) / 16.0F;
+	
+							tries++;
+						}
+	
+						arrowList.add(new ArrowPosition(modelRenderer,
+								randX, randY, randZ,
+								arrowX, arrowY, arrowZ));
+					}
+	
+					modelRenderer.postRender(0.0625F);
+	
+					GL11.glTranslatef(arrowX, arrowY, arrowZ);
+	
+					// Rotation
+					randX = randX * 2.0F - 1.0F;
+					randY = randY * 2.0F - 1.0F;
+					randZ = randZ * 2.0F - 1.0F;
+					randX *= -1.0F;
+					randY *= -1.0F;
+					randZ *= -1.0F;
+					float dist = MathHelper.sqrt_float(randX * randX + randZ * randZ);
+					arrow.prevRotationYaw = arrow.rotationYaw = (float)(Math.atan2(randX, randZ) * 180.0D / Math.PI);
+					arrow.prevRotationPitch = arrow.rotationPitch = (float)(Math.atan2(randY, dist) * 180.0D / Math.PI);
+	
+					// Render
+					renderPlayer.getRenderManagerField().renderEntityWithPosYaw(arrow, 0, 0, 0, 0, partialTick);
+	
+					GL11.glPopMatrix();
+				}
+	
+				arrowCache.put(entity.entityId, arrowList);
+			}
+		}
+		else
+		{
+			renderPlayer.localRenderArrowsStuckInEntity(entity, partialTick);
+		}
+	}
+
+	private static final int swingRotation = -140;
+	private static final int swingRotationWindup = 35;
+	private static final float swingCancel = 0.7F;
+
+	@Override
+	public void afterPositionSpecialItemInHand(AbstractClientPlayer player, float partialTick, EnumAction useAction, ItemStack heldStack) {
+		Minecraft mc = IFPClientProxy.getMC();
+		
+		if (player == mc.thePlayer && mc.gameSettings.thirdPersonView == 0)
+			RenderHelper.enableStandardItemLighting();
+
+		//render bow on player's left hand
+		if (Item.itemsList[heldStack.itemID] instanceof ItemBow) {
+			GL11.glPopMatrix();
+			GL11.glPushMatrix();
+			renderPlayer.getModelBipedMainField().bipedLeftArm.postRender(0.0625F);
+			GL11.glTranslatef(-0.0625F, 0.4375F, 0.0625F);
+
+			GL11.glScalef(0.625F, -0.625F, 0.625F);
+			GL11.glTranslatef(0.1F, 0, 0.3F);
+
+			float rot = 15F * renderPlayer.getModelBipedMainField().bipedHead.rotateAngleX;
+
+			float correctionsRot = rot;
+
+			if (correctionsRot > 0)
+			{
+				correctionsRot *= 2;
+
+				float max = 12.5F;
+
+				if (correctionsRot > max)
+				{
+					correctionsRot = max - (correctionsRot - max);
+				}
+
+				correctionsRot = MathHelper.sqrt_float(correctionsRot);
+
+				if (correctionsRot > 0)
+					GL11.glRotatef(correctionsRot, 0, 0, 1); //Z-axis
+			}
+			else
+			{
+				correctionsRot *= -1.6F;
+
+				float yOff = -0.3F;
+				float zOff = -0.5F;
+
+				GL11.glTranslatef(0, yOff, zOff);
+				GL11.glRotatef(correctionsRot, 1, 0, 0);
+				GL11.glRotatef(correctionsRot * 0.8F, 0, 0, 1);
+				GL11.glRotatef(correctionsRot * 1.5F, 0, 1, 0);
+				GL11.glTranslatef(0, -yOff, -zOff);
+			}
+
+			GL11.glRotatef(-120, 1, 0, 0);
+
+			rot = Math.abs(rot);
+
+			if (rot > 0)
+			{
+				GL11.glRotatef(10F + rot, 0, 1, 0); //Y-axis
+			}
+		}
+		else if (player.isSwingInProgress && player.swingProgress > 0)
+		{
+			Item heldItem = player.getHeldItem().getItem();
+
+			if (heldItem.isFull3D())
+			{
+				boolean rotatedAround = heldItem.shouldRotateAroundWhenRendering();
+				
+				float actualSwing = player.getSwingProgress(partialTick);
+				float rot = actualSwing * swingRotation + swingRotationWindup;
+
+				float cancel = actualSwing - swingCancel;
+
+				if (cancel > 0)
+				{
+					cancel = cancel / (1 - swingCancel) * swingRotation;
+					rot -= cancel;
+				}
+				
+				if (rotatedAround)
+				{
+                    GL11.glRotatef(-180, 0, 0, 1);
+                    GL11.glTranslatef(0, 0.125F, 0);
+                    
+                    if (player.fishEntity == null)
+                    	rot *= 0.75F;
+                    else if (heldItem instanceof ItemFishingRod)
+                    	rot = 0;
+				}
+				
+				GL11.glRotatef(rot, 1, 0, 0.6F);
+				
+				if (rotatedAround)
+				{
+                    GL11.glRotatef(180, 0, 0, 1);
+                    GL11.glTranslatef(0, -0.125F, 0);
+				}
+			}
+		}
+	}
+	
+	@Override
+	public void positionSpecialItemInHand(AbstractClientPlayer player, float partialTick, EnumAction action, ItemStack stack)
+	{
+        if (player.fishEntity != null)
+        	stack.itemID = Item.fishingRod.itemID;
         
-        boolean clientPlayer = entity == mc.renderViewEntity;
-        boolean invPlayer = RenderManager.instance.playerViewY == 180;
-
-        if (invPlayer) {
-            //if the inventory screen is open
-            modelPlayer.bipedHead.isHidden = false;
-            modelPlayer.bipedHeadwear.isHidden = false;
-            return;
-        }
-
-        if ((mc.gameSettings.thirdPersonView == 0 && clientPlayer) || mc.renderViewEntity.isPlayerSleeping()) {
-            modelPlayer.bipedHead.isHidden = true;
-            modelPlayer.bipedHeadwear.isHidden = true;
-        } else {
-            modelPlayer.bipedHead.isHidden = false;
-            modelPlayer.bipedHeadwear.isHidden = false;
-        }
-
-        ItemStack item = player.getHeldItem();
-
-        if (item != null && (Item.map.itemID == item.itemID || Item.emptyMap.itemID == item.itemID)) {
-            modelPlayer.bipedRightArm.rotateAngleX = -(float)Math.PI/9;
-            modelPlayer.bipedLeftArm.rotateAngleX = -(float)Math.PI/9;
-            modelPlayer.bipedRightArm.rotateAngleZ = 0;
-            modelPlayer.bipedLeftArm.rotateAngleZ = 0;
-
-            modelPlayer.bipedRightArm.rotateAngleZ += MathHelper.cos(ticksExistedPartial * 0.09F) * 0.05F + 0.05F;
-            modelPlayer.bipedLeftArm.rotateAngleZ -= MathHelper.cos(ticksExistedPartial * 0.09F) * 0.05F + 0.05F;
-            modelPlayer.bipedRightArm.rotateAngleX += MathHelper.sin(ticksExistedPartial * 0.067F) * 0.05F;
-            modelPlayer.bipedLeftArm.rotateAngleX -= MathHelper.sin(ticksExistedPartial * 0.067F) * 0.05F;
-        }
-
-        if (modelPlayer.aimedBow) {
-            float rotationYaw = player.prevRotationYawHead + (player.rotationYawHead - player.prevRotationYawHead) * partialTick; 
-            //player.renderYawOffset = rotationYaw + 40;
-            modelPlayer.bipedLeftArm.rotateAngleY += 0.15F;
-
-            ticksExistedPartial = ticksExistedPartial * 6.0f;
-            //modelPlayer.bipedRightArm.rotateAngleZ += 0.15F * (MathHelper.cos(ticksExistedPartial * 0.09F) * 0.05F + 0.05F);
-            modelPlayer.bipedLeftArm.rotateAngleZ -= 0.15F * (MathHelper.cos(ticksExistedPartial * 0.09F) * 0.05F + 0.05F);
-            //modelPlayer.bipedRightArm.rotateAngleX += 0.15F * (MathHelper.sin(ticksExistedPartial * 0.067F) * 0.05F);
-            modelPlayer.bipedLeftArm.rotateAngleX -= 0.15F * (MathHelper.sin(ticksExistedPartial * 0.067F) * 0.05F);
-
-            float headAngle = modelPlayer.bipedHead.rotateAngleX * 15;
-            float rot = headAngle / 45;
-
-            rot *= rot * 2.5F;
-
-            if (headAngle > 0)
-            {
-                modelPlayer.bipedRightArm.rotateAngleX -= rot * 2;
-                modelPlayer.bipedRightArm.rotateAngleY -= rot;
-                
-                if (clientPlayer && mc.gameSettings.thirdPersonView == 0 && ModImprovedFirstPerson.enableBodyRender)
-                    modelPlayer.bipedRightArm.rotationPointX -= rot * 3F;
-                
-                modelPlayer.bipedLeftArm.rotateAngleY += rot;
-
-                rot -= 0.5F;
-                rot *= 0.75F;
-
-                if (rot > 0)
-                    modelPlayer.bipedLeftArm.rotateAngleX -= rot;
-            }
-            else
-            {
-                modelPlayer.bipedLeftArm.rotateAngleZ -= rot;
-                modelPlayer.bipedLeftArm.rotateAngleX += rot;
-                modelPlayer.bipedRightArm.rotateAngleX += rot * 2.75F;
-            }
-            
-            if (mc.gameSettings.thirdPersonView == 0 && player instanceof EntityPlayerSP)
-            {
-                EntityPlayerSP playerSP = (EntityPlayerSP)player;
-                float strafe = playerSP.movementInput.moveStrafe;
-                
-                float div = Math.max(2, MathHelper.sqrt_float(Math.abs(modelPlayer.bipedHead.rotateAngleX * 40)));
-                float targetOffset = strafe / div;
-                prevStrafeOffset = prevStrafeOffset + (targetOffset - prevStrafeOffset) * 0.025F;
-                
-                modelPlayer.bipedLeftArm.rotateAngleZ += prevStrafeOffset;
-            }
-        }
-
-        if (item == null || Item.itemsList[item.itemID] instanceof ItemBow) {
-            modelPlayer.heldItemLeft = 0;
-        }
-
-        // Make player lean over when looking down
-        if (entity.rotationPitch > 0 && !modelPlayer.isRiding &&
-                (ModImprovedFirstPerson.enableBodyRender || !clientPlayer || invPlayer))
-        {
-            float off;
-            float mult = ModImprovedFirstPerson.leanAmount;
-            
-            ItemStack heldItem = player.getHeldItem();
-            boolean map = heldItem != null && (heldItem.getItem() instanceof ItemMapBase);
-
-            if (!map)
-            {
-                off = Math.abs(entity.rotationPitch / 250F * mult);
-                
-                if (player.isUsingItem())
-                {
-                    float div = ((player.getItemInUseDuration() + partialTick) / 4) + 1;
-                    
-                    if (div < 1)
-                        div = 1;
-                    
-                    off /= div;
-                }
-                
-                modelPlayer.bipedLeftArm.rotateAngleZ -= off;
-                modelPlayer.bipedRightArm.rotateAngleZ += off;
-            }
-
-            if (!modelPlayer.isSneak)
-            {
-                off = entity.rotationPitch / 180F * mult;
-                modelPlayer.bipedBody.rotateAngleX += off;
-
-                off = entity.rotationPitch / 16F * mult;
-                modelPlayer.bipedRightLeg.rotationPointZ += off;
-                modelPlayer.bipedLeftLeg.rotationPointZ += off;
-
-                off = Math.abs(entity.rotationPitch / 50F * mult);
-                modelPlayer.bipedRightLeg.rotationPointY -= off;
-                modelPlayer.bipedLeftLeg.rotationPointY -= off;
-            }
-        }
-        
-        // Eating animation
-        if (player.isUsingItem())
-        {
-            ItemStack heldItemStack = player.getHeldItem();
-            
-            if (heldItemStack != null)
-            {
-                Item heldItem = heldItemStack.getItem();
-                EnumAction action = heldItem.getItemUseAction(heldItemStack);
-                
-                if (action == EnumAction.eat || action == EnumAction.drink)
-                {
-                    float useLeftPartial = (float)player.getItemInUseCount() + 1 - partialTick;
-                    float progressLeft = useLeftPartial / (float)heldItemStack.getMaxItemUseDuration();
-                    float moveAmount = progressLeft * progressLeft * progressLeft;
-                    moveAmount = moveAmount * moveAmount * moveAmount;
-                    moveAmount = moveAmount * moveAmount * moveAmount;
-                    moveAmount = 1.0F - moveAmount;
-
-                    float preAngleX = modelPlayer.bipedRightArm.rotateAngleX;
-                    float preAngleY = modelPlayer.bipedRightArm.rotateAngleY;
-                    float preAngleZ = modelPlayer.bipedRightArm.rotateAngleZ;
-                    
-                    modelPlayer.bipedRightArm.rotateAngleX -= moveAmount * 1.25F;
-                    modelPlayer.bipedRightArm.rotateAngleY -= moveAmount / 2;
-                    modelPlayer.bipedRightArm.rotateAngleZ += moveAmount / 2;
-
-                    float bodyYaw = player.prevRenderYawOffset + (player.renderYawOffset - player.prevRenderYawOffset) * partialTick;
-                    float headYaw = player.prevRotationYawHead + (player.rotationYawHead - player.prevRotationYawHead) * partialTick;
-                    float offset = MathHelper.wrapAngleTo180_float(headYaw - bodyYaw) / 80 * moveAmount;
-
-                    modelPlayer.bipedRightArm.rotateAngleX += offset / 2.5F;
-                    modelPlayer.bipedRightArm.rotateAngleY += offset + 0.2F;
-
-                    modelPlayer.bipedRightArm.rotationPointZ += moveAmount;
-                    modelPlayer.bipedRightArm.rotationPointZ += (offset - 0.2F) * 2;
-                    
-                    float headPitch = player.prevRotationPitch + (player.rotationPitch - player.prevRotationPitch) * partialTick;
-                    offset = headPitch / 180;
-                    
-                    modelPlayer.bipedRightArm.rotateAngleY -= offset;
-                    
-                    if (offset > 0)
-                        offset /= 1.5F;
-
-                    modelPlayer.bipedRightArm.rotateAngleX += offset;
-                    
-                    modelPlayer.bipedRightArm.rotateAngleX += MathHelper.abs(MathHelper.cos(useLeftPartial / 4.0F * (float)Math.PI) * 0.125F) * (progressLeft > 0.2F ? -1 : 0);
-                    //modelPlayer.bipedRightArm.rotateAngleZ += (1 - progressLeft) * 0.1;
-
-                    float diffAngleX = modelPlayer.bipedRightArm.rotateAngleX - preAngleX;
-                    float diffAngleY = modelPlayer.bipedRightArm.rotateAngleY - preAngleY;
-                    float diffAngleZ = modelPlayer.bipedRightArm.rotateAngleZ - preAngleZ;
-                    
-                    float mult = Math.min(progressLeft / 0.2F, 1);
-                    mult *= mult * mult;
-
-                    modelPlayer.bipedRightArm.rotateAngleX = preAngleX + diffAngleX * mult;
-                    modelPlayer.bipedRightArm.rotateAngleY = preAngleY + diffAngleY * mult;
-                    modelPlayer.bipedRightArm.rotateAngleZ = preAngleZ + diffAngleZ * mult;
-                }
-            }
-        }
-
-        //modelPlayer.bipedLeftArm.rotateAngleZ = 0;
-        //modelPlayer.bipedLeftArm.rotateAngleX = 0;
-        //modelPlayer.bipedLeftArm.rotateAngleY = var1 * 0.001f;
-    }
-
-    ModelPlayer getModelPlayer()
-    {
-        return modelPlayer;
-    }
-
+        renderPlayer.localPositionSpecialItemInHand(player, partialTick, action, stack);
+	}
 }
