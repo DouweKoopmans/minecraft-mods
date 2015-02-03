@@ -4,9 +4,9 @@ import java.util.*;
 import com.google.common.eventbus.*;
 import cpw.mods.fml.common.*;
 
-public class RenderPlayerAPIContainer extends DummyModContainer
+public class RenderPlayerAPIEnhancerContainer extends DummyModContainer
 {
-	public RenderPlayerAPIContainer()
+	public RenderPlayerAPIEnhancerContainer()
 	{
 		super(createMetadata());
 	}
@@ -20,10 +20,10 @@ public class RenderPlayerAPIContainer extends DummyModContainer
 	{
 		ModMetadata meta = new ModMetadata();
 
-		meta.modId = "RenderPlayerAPI";
-		meta.name = "Render Player API";
-		meta.version = RenderPlayerAPIPlugin.Version;
-		meta.description = "Render Player API for Minecraft Forge";
+		meta.modId = "RenderPlayerAPIEnhancer";
+		meta.name = "Render Player API Enhancer";
+		meta.version = RenderPlayerAPIEnhancerPlugin.Version;
+		meta.description = "Render Player API Enhancer for Minecraft Forge";
 		meta.url = "http://www.minecraftforum.net/topic/1261354-";
 		meta.authorList = Arrays.asList(new String[] { "Divisor" });
 

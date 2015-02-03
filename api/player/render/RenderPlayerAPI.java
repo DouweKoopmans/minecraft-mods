@@ -4,6 +4,7 @@ import java.io.*;
 import java.text.*;
 import java.util.*;
 import java.util.logging.*;
+import java.lang.ref.*;
 import java.lang.reflect.*;
 
 public final class RenderPlayerAPI
@@ -57,16 +58,16 @@ public final class RenderPlayerAPI
 				String[] errorMessageParts = new String[]
 				{
 					"========================================",
-					"The API \"Render Player\" version 1.0 of the mod \"Render Player API core 1.0\" can not be created!",
+					"The API \"Render Player\" version " + api.player.forge.RenderPlayerAPIPlugin.Version + " of the mod \"Render Player API Core " + api.player.forge.RenderPlayerAPIPlugin.Version + "\" can not be created!",
 					"----------------------------------------",
 					"Mandatory member method \"{0} getRenderPlayerBase({3})\" not found in class \"{1}\".",
 					"There are three scenarios this can happen:",
-					"* Minecraft Forge is missing a Render Player API core which Minecraft version matches its own.",
-					"  Download and install the latest Render Player API core for the Minecraft version you were trying to run.",
-					"* The code of the class \"{2}\" of Render Player API core has been modified beyond recognition by another Minecraft Forge coremod.",
+					"* Minecraft Forge is missing a Render Player API Core which Minecraft version matches its own.",
+					"  Download and install the latest Render Player API Core for the Minecraft version you were trying to run.",
+					"* The code of the class \"{2}\" of Render Player API Core has been modified beyond recognition by another Minecraft Forge coremod.",
 					"  Try temporary deinstallation of other core mods to find the culprit and deinstall it permanently to fix this specific problem.",
-					"* Render Player API core has not been installed correctly.",
-					"  Deinstall Render Player API core and install it again following the installation instructions in the readme file.",
+					"* Render Player API Core has not been installed correctly.",
+					"  Deinstall Render Player API Core and install it again following the installation instructions in the readme file.",
 					"========================================"
 				};
 
@@ -91,7 +92,7 @@ public final class RenderPlayerAPI
 				throw new RuntimeException(errorMessage, exception);
 			}
 
-			log("Render Player 1.0 Created");
+			log("Render Player " + api.player.forge.RenderPlayerAPIPlugin.Version + " Created");
 			isCreated = true;
 		}
 
@@ -460,7 +461,7 @@ public final class RenderPlayerAPI
 
 		initialize();
 
-		for(IRenderPlayerAPI instance : allInstances)
+		for(IRenderPlayerAPI instance : getAllInstancesList())
 			instance.getRenderPlayerAPI().attachRenderPlayerBase(id);
 
 		System.out.println("Render Player: registered " + id);
@@ -478,7 +479,7 @@ public final class RenderPlayerAPI
 		if(constructor == null)
 			return false;
 
-		for(IRenderPlayerAPI instance : allInstances)
+		for(IRenderPlayerAPI instance : getAllInstancesList())
 			instance.getRenderPlayerAPI().detachRenderPlayerBase(id);
 
 		beforeLocalConstructingHookTypes.remove(id);
@@ -1144,10 +1145,25 @@ public final class RenderPlayerAPI
 		initialized = true;
 	}
 
-	private static List<IRenderPlayerAPI> allInstances = new ArrayList<IRenderPlayerAPI>();
+	private static List<IRenderPlayerAPI> getAllInstancesList()
+	{
+		List<IRenderPlayerAPI> result = new ArrayList<IRenderPlayerAPI>();
+		for(Iterator<WeakReference<IRenderPlayerAPI>> iterator = allInstances.iterator(); iterator.hasNext();)
+		{
+			IRenderPlayerAPI instance = iterator.next().get();
+			if(instance != null)
+				result.add(instance);
+			else
+				iterator.remove();
+		}
+		return result;
+	}
+
+	private static List<WeakReference<IRenderPlayerAPI>> allInstances = new ArrayList<WeakReference<IRenderPlayerAPI>>();
 
 	public static net.minecraft.client.renderer.entity.RenderPlayer[] getAllInstances()
 	{
+		List<IRenderPlayerAPI> allInstances = getAllInstancesList();
 		return allInstances.toArray(new net.minecraft.client.renderer.entity.RenderPlayer[allInstances.size()]);
 	}
 
@@ -1157,7 +1173,7 @@ public final class RenderPlayerAPI
 		if(renderPlayerAPI != null)
 			renderPlayerAPI.load();
 
-		allInstances.add(renderPlayer);
+		allInstances.add(new WeakReference<IRenderPlayerAPI>(renderPlayer));
 
 		if(renderPlayerAPI != null)
 			renderPlayerAPI.beforeLocalConstructing();
@@ -1608,7 +1624,7 @@ public final class RenderPlayerAPI
 			return null;
 
 		Method method = methods.get(key);
-		if(methods == null)
+		if(method == null)
 			return null;
 
 		return execute(getRenderPlayerBase(id), method, parameters);
@@ -1682,6 +1698,9 @@ public final class RenderPlayerAPI
 
 	protected RenderPlayerBase GetOverwrittenDoRenderLabel(RenderPlayerBase overWriter)
 	{
+		if (overrideDoRenderLabelHooks == null)
+			return overWriter;
+
 		for(int i = 0; i < overrideDoRenderLabelHooks.length; i++)
 			if(overrideDoRenderLabelHooks[i] == overWriter)
 				if(i == 0)
@@ -1737,6 +1756,9 @@ public final class RenderPlayerAPI
 
 	protected RenderPlayerBase GetOverwrittenDoRenderShadowAndFire(RenderPlayerBase overWriter)
 	{
+		if (overrideDoRenderShadowAndFireHooks == null)
+			return overWriter;
+
 		for(int i = 0; i < overrideDoRenderShadowAndFireHooks.length; i++)
 			if(overrideDoRenderShadowAndFireHooks[i] == overWriter)
 				if(i == 0)
@@ -1796,6 +1818,9 @@ public final class RenderPlayerAPI
 
 	protected RenderPlayerBase GetOverwrittenGetColorMultiplier(RenderPlayerBase overWriter)
 	{
+		if (overrideGetColorMultiplierHooks == null)
+			return overWriter;
+
 		for(int i = 0; i < overrideGetColorMultiplierHooks.length; i++)
 			if(overrideGetColorMultiplierHooks[i] == overWriter)
 				if(i == 0)
@@ -1855,6 +1880,9 @@ public final class RenderPlayerAPI
 
 	protected RenderPlayerBase GetOverwrittenGetDeathMaxRotation(RenderPlayerBase overWriter)
 	{
+		if (overrideGetDeathMaxRotationHooks == null)
+			return overWriter;
+
 		for(int i = 0; i < overrideGetDeathMaxRotationHooks.length; i++)
 			if(overrideGetDeathMaxRotationHooks[i] == overWriter)
 				if(i == 0)
@@ -1914,6 +1942,9 @@ public final class RenderPlayerAPI
 
 	protected RenderPlayerBase GetOverwrittenGetFontRendererFromRenderManager(RenderPlayerBase overWriter)
 	{
+		if (overrideGetFontRendererFromRenderManagerHooks == null)
+			return overWriter;
+
 		for(int i = 0; i < overrideGetFontRendererFromRenderManagerHooks.length; i++)
 			if(overrideGetFontRendererFromRenderManagerHooks[i] == overWriter)
 				if(i == 0)
@@ -1973,6 +2004,9 @@ public final class RenderPlayerAPI
 
 	protected RenderPlayerBase GetOverwrittenGetResourceLocationFromPlayer(RenderPlayerBase overWriter)
 	{
+		if (overrideGetResourceLocationFromPlayerHooks == null)
+			return overWriter;
+
 		for(int i = 0; i < overrideGetResourceLocationFromPlayerHooks.length; i++)
 			if(overrideGetResourceLocationFromPlayerHooks[i] == overWriter)
 				if(i == 0)
@@ -2032,6 +2066,9 @@ public final class RenderPlayerAPI
 
 	protected RenderPlayerBase GetOverwrittenHandleRotationFloat(RenderPlayerBase overWriter)
 	{
+		if (overrideHandleRotationFloatHooks == null)
+			return overWriter;
+
 		for(int i = 0; i < overrideHandleRotationFloatHooks.length; i++)
 			if(overrideHandleRotationFloatHooks[i] == overWriter)
 				if(i == 0)
@@ -2091,6 +2128,9 @@ public final class RenderPlayerAPI
 
 	protected RenderPlayerBase GetOverwrittenInheritRenderPass(RenderPlayerBase overWriter)
 	{
+		if (overrideInheritRenderPassHooks == null)
+			return overWriter;
+
 		for(int i = 0; i < overrideInheritRenderPassHooks.length; i++)
 			if(overrideInheritRenderPassHooks[i] == overWriter)
 				if(i == 0)
@@ -2146,6 +2186,9 @@ public final class RenderPlayerAPI
 
 	protected RenderPlayerBase GetOverwrittenLoadTexture(RenderPlayerBase overWriter)
 	{
+		if (overrideLoadTextureHooks == null)
+			return overWriter;
+
 		for(int i = 0; i < overrideLoadTextureHooks.length; i++)
 			if(overrideLoadTextureHooks[i] == overWriter)
 				if(i == 0)
@@ -2201,6 +2244,9 @@ public final class RenderPlayerAPI
 
 	protected RenderPlayerBase GetOverwrittenLoadTextureOfEntity(RenderPlayerBase overWriter)
 	{
+		if (overrideLoadTextureOfEntityHooks == null)
+			return overWriter;
+
 		for(int i = 0; i < overrideLoadTextureOfEntityHooks.length; i++)
 			if(overrideLoadTextureOfEntityHooks[i] == overWriter)
 				if(i == 0)
@@ -2256,6 +2302,9 @@ public final class RenderPlayerAPI
 
 	protected RenderPlayerBase GetOverwrittenPassSpecialRender(RenderPlayerBase overWriter)
 	{
+		if (overridePassSpecialRenderHooks == null)
+			return overWriter;
+
 		for(int i = 0; i < overridePassSpecialRenderHooks.length; i++)
 			if(overridePassSpecialRenderHooks[i] == overWriter)
 				if(i == 0)
@@ -2315,6 +2364,9 @@ public final class RenderPlayerAPI
 
 	protected RenderPlayerBase GetOverwrittenPerformStaticEntityRebuild(RenderPlayerBase overWriter)
 	{
+		if (overridePerformStaticEntityRebuildHooks == null)
+			return overWriter;
+
 		for(int i = 0; i < overridePerformStaticEntityRebuildHooks.length; i++)
 			if(overridePerformStaticEntityRebuildHooks[i] == overWriter)
 				if(i == 0)
@@ -2370,6 +2422,9 @@ public final class RenderPlayerAPI
 
 	protected RenderPlayerBase GetOverwrittenRenderArrowsStuckInEntity(RenderPlayerBase overWriter)
 	{
+		if (overrideRenderArrowsStuckInEntityHooks == null)
+			return overWriter;
+
 		for(int i = 0; i < overrideRenderArrowsStuckInEntityHooks.length; i++)
 			if(overrideRenderArrowsStuckInEntityHooks[i] == overWriter)
 				if(i == 0)
@@ -2425,6 +2480,9 @@ public final class RenderPlayerAPI
 
 	protected RenderPlayerBase GetOverwrittenRenderFirstPersonArm(RenderPlayerBase overWriter)
 	{
+		if (overrideRenderFirstPersonArmHooks == null)
+			return overWriter;
+
 		for(int i = 0; i < overrideRenderFirstPersonArmHooks.length; i++)
 			if(overrideRenderFirstPersonArmHooks[i] == overWriter)
 				if(i == 0)
@@ -2480,6 +2538,9 @@ public final class RenderPlayerAPI
 
 	protected RenderPlayerBase GetOverwrittenRenderLivingLabel(RenderPlayerBase overWriter)
 	{
+		if (overrideRenderLivingLabelHooks == null)
+			return overWriter;
+
 		for(int i = 0; i < overrideRenderLivingLabelHooks.length; i++)
 			if(overrideRenderLivingLabelHooks[i] == overWriter)
 				if(i == 0)
@@ -2535,6 +2596,9 @@ public final class RenderPlayerAPI
 
 	protected RenderPlayerBase GetOverwrittenRenderModel(RenderPlayerBase overWriter)
 	{
+		if (overrideRenderModelHooks == null)
+			return overWriter;
+
 		for(int i = 0; i < overrideRenderModelHooks.length; i++)
 			if(overrideRenderModelHooks[i] == overWriter)
 				if(i == 0)
@@ -2590,6 +2654,9 @@ public final class RenderPlayerAPI
 
 	protected RenderPlayerBase GetOverwrittenRenderPlayer(RenderPlayerBase overWriter)
 	{
+		if (overrideRenderPlayerHooks == null)
+			return overWriter;
+
 		for(int i = 0; i < overrideRenderPlayerHooks.length; i++)
 			if(overrideRenderPlayerHooks[i] == overWriter)
 				if(i == 0)
@@ -2645,6 +2712,9 @@ public final class RenderPlayerAPI
 
 	protected RenderPlayerBase GetOverwrittenRenderPlayerNameAndScoreLabel(RenderPlayerBase overWriter)
 	{
+		if (overrideRenderPlayerNameAndScoreLabelHooks == null)
+			return overWriter;
+
 		for(int i = 0; i < overrideRenderPlayerNameAndScoreLabelHooks.length; i++)
 			if(overrideRenderPlayerNameAndScoreLabelHooks[i] == overWriter)
 				if(i == 0)
@@ -2700,6 +2770,9 @@ public final class RenderPlayerAPI
 
 	protected RenderPlayerBase GetOverwrittenRenderPlayerScale(RenderPlayerBase overWriter)
 	{
+		if (overrideRenderPlayerScaleHooks == null)
+			return overWriter;
+
 		for(int i = 0; i < overrideRenderPlayerScaleHooks.length; i++)
 			if(overrideRenderPlayerScaleHooks[i] == overWriter)
 				if(i == 0)
@@ -2755,6 +2828,9 @@ public final class RenderPlayerAPI
 
 	protected RenderPlayerBase GetOverwrittenRenderPlayerSleep(RenderPlayerBase overWriter)
 	{
+		if (overrideRenderPlayerSleepHooks == null)
+			return overWriter;
+
 		for(int i = 0; i < overrideRenderPlayerSleepHooks.length; i++)
 			if(overrideRenderPlayerSleepHooks[i] == overWriter)
 				if(i == 0)
@@ -2810,6 +2886,9 @@ public final class RenderPlayerAPI
 
 	protected RenderPlayerBase GetOverwrittenRenderSpecials(RenderPlayerBase overWriter)
 	{
+		if (overrideRenderSpecialsHooks == null)
+			return overWriter;
+
 		for(int i = 0; i < overrideRenderSpecialsHooks.length; i++)
 			if(overrideRenderSpecialsHooks[i] == overWriter)
 				if(i == 0)
@@ -2869,6 +2948,9 @@ public final class RenderPlayerAPI
 
 	protected RenderPlayerBase GetOverwrittenRenderSwingProgress(RenderPlayerBase overWriter)
 	{
+		if (overrideRenderSwingProgressHooks == null)
+			return overWriter;
+
 		for(int i = 0; i < overrideRenderSwingProgressHooks.length; i++)
 			if(overrideRenderSwingProgressHooks[i] == overWriter)
 				if(i == 0)
@@ -2924,6 +3006,9 @@ public final class RenderPlayerAPI
 
 	protected RenderPlayerBase GetOverwrittenRotatePlayer(RenderPlayerBase overWriter)
 	{
+		if (overrideRotatePlayerHooks == null)
+			return overWriter;
+
 		for(int i = 0; i < overrideRotatePlayerHooks.length; i++)
 			if(overrideRotatePlayerHooks[i] == overWriter)
 				if(i == 0)
@@ -2983,6 +3068,9 @@ public final class RenderPlayerAPI
 
 	protected RenderPlayerBase GetOverwrittenSetArmorModel(RenderPlayerBase overWriter)
 	{
+		if (overrideSetArmorModelHooks == null)
+			return overWriter;
+
 		for(int i = 0; i < overrideSetArmorModelHooks.length; i++)
 			if(overrideSetArmorModelHooks[i] == overWriter)
 				if(i == 0)
@@ -3038,6 +3126,9 @@ public final class RenderPlayerAPI
 
 	protected RenderPlayerBase GetOverwrittenSetPassArmorModel(RenderPlayerBase overWriter)
 	{
+		if (overrideSetPassArmorModelHooks == null)
+			return overWriter;
+
 		for(int i = 0; i < overrideSetPassArmorModelHooks.length; i++)
 			if(overrideSetPassArmorModelHooks[i] == overWriter)
 				if(i == 0)
@@ -3093,6 +3184,9 @@ public final class RenderPlayerAPI
 
 	protected RenderPlayerBase GetOverwrittenSetRenderManager(RenderPlayerBase overWriter)
 	{
+		if (overrideSetRenderManagerHooks == null)
+			return overWriter;
+
 		for(int i = 0; i < overrideSetRenderManagerHooks.length; i++)
 			if(overrideSetRenderManagerHooks[i] == overWriter)
 				if(i == 0)
@@ -3148,6 +3242,9 @@ public final class RenderPlayerAPI
 
 	protected RenderPlayerBase GetOverwrittenSetRenderPassModel(RenderPlayerBase overWriter)
 	{
+		if (overrideSetRenderPassModelHooks == null)
+			return overWriter;
+
 		for(int i = 0; i < overrideSetRenderPassModelHooks.length; i++)
 			if(overrideSetRenderPassModelHooks[i] == overWriter)
 				if(i == 0)
@@ -3203,6 +3300,9 @@ public final class RenderPlayerAPI
 
 	protected RenderPlayerBase GetOverwrittenUpdateIcons(RenderPlayerBase overWriter)
 	{
+		if (overrideUpdateIconsHooks == null)
+			return overWriter;
+
 		for(int i = 0; i < overrideUpdateIconsHooks.length; i++)
 			if(overrideUpdateIconsHooks[i] == overWriter)
 				if(i == 0)
