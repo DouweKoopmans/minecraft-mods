@@ -6,6 +6,7 @@ import thehippomaster.AnimatedPlayer.PlayerData;
 */
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.MathHelper;
 import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -20,23 +21,23 @@ public class ClientEventHandler {
 	
 	@SubscribeEvent
 	public void jumpEvent(LivingJumpEvent event)
-	{
-		/*if (event.entityLiving instanceof EntityPlayer)
-		{
-			EntityPlayer player = (EntityPlayer)event.entityLiving;
-			
-			if (IFPClientProxy.animatedPlayerInstalled)
-			{
-				PlayerData data = PlayerData.getPlayerData(player);
-				
-				if (data.jumpTick > 0)
-				{
-					data.jumpRight = !data.jumpRight;
-				}
-			}
-		}*/
-	}
-	
+    {
+        /*if (event.entityLiving instanceof EntityPlayer)
+        {
+            EntityPlayer player = (EntityPlayer)event.entityLiving;
+            
+            if (IFPClientProxy.animatedPlayerInstalled)
+            {
+                PlayerData data = PlayerData.getPlayerData(player);
+                
+                if (data.jumpTick > 0)
+                {
+                    data.jumpRight = !data.jumpRight;
+                }
+            }
+        }*/
+    }
+    
 	private double lastOffX = 0;
 	private double lastOffY = 0;
 	private double lastScale = 1;

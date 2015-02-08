@@ -9,9 +9,9 @@ import kes5219.utils.misc.PartialTickRetriever;
 
 import org.lwjgl.opengl.GL11;
 
+import cpw.mods.fml.common.registry.GameData;
 import api.player.render.RenderPlayerAPI;
 import api.player.render.RenderPlayerBase;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.model.ModelBox;
@@ -34,6 +34,7 @@ import net.minecraft.item.ItemSword;
 import net.minecraft.item.ItemTool;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
+import net.minecraft.util.Vec3;
 import net.minecraftforge.client.MinecraftForgeClient;
 
 public class IFPRenderPlayerBase extends RenderPlayerBase {
@@ -60,7 +61,7 @@ public class IFPRenderPlayerBase extends RenderPlayerBase {
 		if(player != mc.renderViewEntity ||
 				mc.gameSettings.thirdPersonView > 0 ||
 				RenderManager.instance.playerViewY == 180/*if the inventory is open*/) {
-			renderPlayer.localRenderSpecialHeadArmor(player, partialTick);
+			renderPlayerAPI.localRenderSpecialHeadArmor(player, partialTick);
 		}
 	}
 
@@ -102,7 +103,7 @@ public class IFPRenderPlayerBase extends RenderPlayerBase {
 				EntityArrow arrow = new EntityArrow(entity.worldObj, entity.posX, entity.posY, entity.posZ);
 				Random random = null;
 	
-				ArrayList<ArrowPosition> arrowList = arrowCache.get(entity.entityId);
+				ArrayList<ArrowPosition> arrowList = arrowCache.get(entity.getEntityId());
 	
 				if (arrowList == null || arrowList.size() != arrowCount)
 					arrowList = new ArrayList();
@@ -138,18 +139,18 @@ public class IFPRenderPlayerBase extends RenderPlayerBase {
 	
 					if (modelRenderer == null)
 					{
-						AxisAlignedBB headBB = AxisAlignedBB.getAABBPool().getAABB(-0.6F, -0.8F, -0.6F, 0.6F, 0.3F, 0.6F);
+						AxisAlignedBB headBB = AxisAlignedBB.getBoundingBox(-0.6F, -0.8F, -0.6F, 0.6F, 0.3F, 0.6F);
 						
 						if (random == null)
-							random = new Random(entity.entityId);
+							random = new Random(entity.getEntityId());
 	
 						int tries = 0;
 	
 						while (tries < 10 && (modelRenderer == null ||
 								(entity == mc.renderViewEntity &&
-								headBB.isVecInside(entity.worldObj.getWorldVec3Pool().getVecFromPool(arrowX, arrowY, arrowZ)))))
+								headBB.isVecInside(Vec3.createVectorHelper(arrowX, arrowY, arrowZ)))))
 						{
-							modelRenderer = renderPlayer.getMainModelField().getRandomModelBox(random);
+							modelRenderer = renderPlayerAPI.getMainModelField().getRandomModelBox(random);
 							box = (ModelBox)modelRenderer.cubeList.get(random.nextInt(modelRenderer.cubeList.size()));
 	
 							randX = random.nextFloat();
@@ -184,17 +185,17 @@ public class IFPRenderPlayerBase extends RenderPlayerBase {
 					arrow.prevRotationPitch = arrow.rotationPitch = (float)(Math.atan2(randY, dist) * 180.0D / Math.PI);
 	
 					// Render
-					renderPlayer.getRenderManagerField().renderEntityWithPosYaw(arrow, 0, 0, 0, 0, partialTick);
+					renderPlayerAPI.getRenderManagerField().renderEntityWithPosYaw(arrow, 0, 0, 0, 0, partialTick);
 	
 					GL11.glPopMatrix();
 				}
 	
-				arrowCache.put(entity.entityId, arrowList);
+				arrowCache.put(entity.getEntityId(), arrowList);
 			}
 		}
 		else
 		{
-			renderPlayer.localRenderArrowsStuckInEntity(entity, partialTick);
+			renderPlayerAPI.localRenderArrowsStuckInEntity(entity, partialTick);
 		}
 	}
 
@@ -210,16 +211,16 @@ public class IFPRenderPlayerBase extends RenderPlayerBase {
 			RenderHelper.enableStandardItemLighting();
 
 		//render bow on player's left hand
-		if (Item.itemsList[heldStack.itemID] instanceof ItemBow) {
+		if (heldStack.getItem() instanceof ItemBow) {
 			GL11.glPopMatrix();
 			GL11.glPushMatrix();
-			renderPlayer.getModelBipedMainField().bipedLeftArm.postRender(0.0625F);
+			renderPlayerAPI.getModelBipedMainField().bipedLeftArm.postRender(0.0625F);
 			GL11.glTranslatef(-0.0625F, 0.4375F, 0.0625F);
 
 			GL11.glScalef(0.625F, -0.625F, 0.625F);
 			GL11.glTranslatef(0.1F, 0, 0.3F);
 
-			float rot = 15F * renderPlayer.getModelBipedMainField().bipedHead.rotateAngleX;
+			float rot = 15F * renderPlayerAPI.getModelBipedMainField().bipedHead.rotateAngleX;
 
 			float correctionsRot = rot;
 
@@ -307,7 +308,7 @@ public class IFPRenderPlayerBase extends RenderPlayerBase {
 	public void positionSpecialItemInHand(AbstractClientPlayer player, float partialTick, EnumAction action, ItemStack stack)
 	{
         if (player.fishEntity != null)
-        	stack.itemID = Item.fishingRod.itemID;
+        	stack = new ItemStack(GameData.getItemRegistry().getObject("fishing_rod"), stack.stackSize);
         
         renderPlayer.localPositionSpecialItemInHand(player, partialTick, action, stack);
 	}
