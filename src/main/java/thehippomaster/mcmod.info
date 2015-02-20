@@ -1,0 +1,15 @@
+[{
+	"modid": "animatedplayer",
+	"name": "Animated Player Mod",
+	"description": "A mod that replaces the player model with a new better animated model with more joints.",
+	"version": "1.7.2-1.5.0",
+	"mcversion": "1.7.2",
+	"logoFile": "",
+	"url": "http://www.minecraftforum.net/topic/1768057-/",
+	"updateUrl": "",
+	"authors": ["thehippomaster21"],
+	"credits": "Death_Dealer, LOLCaatz, Forge Team, MCP Team",
+	"parent": "",
+	"screenshots": [],
+	"dependencies": []
+}]
