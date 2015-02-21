@@ -9,3 +9,7 @@ IFP only is -> Imprvoved First Person Only
 
 IFP with AP -> Improved First Person With ANimated Player
 
+PP -> Potion Packs
+
+GT -> Growth Tonic
+
