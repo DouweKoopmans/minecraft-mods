@@ -8,8 +8,3 @@ All credits are in the licence file.
 IFP only -> Imprvoved First Person Only
 
 IFP with AP -> Improved First Person With ANimated Player
-
-PP -> Potion Packs
-
-GT -> Growth Tonic
-
